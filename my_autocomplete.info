@@ -1,0 +1,4 @@
+name = My Autocomplete
+core = 7.x
+version = 7.x-1.0-alpha0
+description = Example Autocomplete code for Node Form field

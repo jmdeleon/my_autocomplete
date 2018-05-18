@@ -1,0 +1,57 @@
+<?php
+/**
+ * @file
+ * Example Autocomplete code for Node Form field
+ */
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function my_autocomplete_form_alter(&$form, &$form_state, $form_id) {
+	if ($form_id == 'request_node_form') {
+    // set custom autocomplete menu path on form fields
+    $form['field_control_number']['und'][0]['value']['#autocomplete_path'] = 'my_ac_products';
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function my_autocomplete_menu() {
+  // attach autocomplete menu path to autocomplete callback function for products
+  $items['my_ac_products'] = array(
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+    'title' => 'autocomplete products',
+    'page callback' => '_my_ac_products'
+  );
+  return $items;
+}
+
+function _my_array_search($needle, $haystack) {
+  $result = array();
+  foreach($haystack as $key => $value) {
+    if (stripos($value, $needle) !== FALSE)
+      array_push($result, $value);
+  }
+  return $result;
+}
+
+/**
+ * autocomplete callback function for products
+ */
+function _my_ac_products($input_string = '') {
+  // read a plain-text file containing all product names into an array
+  $all_products = file(drupal_get_path('module','my_autocomplete').'/'.'products.txt');
+
+  // search for input string over the array of all products, returning all matches
+  $search_result = _my_array_search($input_string, $all_products);
+
+  // convert the matches in the search result to Drupal JSON as required by autocomplete
+  $matches = array();
+  foreach($search_result as $item) {
+    $matches[$item] = $item;
+  }
+  $result = drupal_json_output($matches);
+  return $result;
+}
